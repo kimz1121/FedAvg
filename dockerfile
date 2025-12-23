@@ -1,0 +1,48 @@
+##########################################
+# FedAvg Dockerfile (base conda env)
+##########################################
+
+FROM pytorch/pytorch:2.1.0-cuda11.8-cudnn8-runtime
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# ==================================================
+# System packages
+# ==================================================
+RUN apt-get update && apt-get install -y \
+    bash \
+    git \
+    curl \
+    wget \
+    ca-certificates \
+    build-essential \
+    tree \
+    vim \
+    && rm -rf /var/lib/apt/lists/*
+
+# ==================================================
+# Set working directory
+# ==================================================
+WORKDIR /workspace
+
+# ==================================================
+# Copy environment.yaml
+# (source code is volume-mounted)
+# ==================================================
+COPY environment.yaml /tmp/environment.yaml
+
+# ==================================================
+# Update base conda environment (NO new env)
+# ==================================================
+RUN conda update -n base -y conda && \
+    conda env update -n base -f /tmp/environment.yaml && \
+    rm /tmp/environment.yaml && \
+    conda clean -afy && \
+    pip cache purge
+
+# ==================================================
+# Default shell
+# ==================================================
+SHELL ["/bin/bash", "-c"]
+
+CMD ["/bin/bash"]

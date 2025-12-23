@@ -1,0 +1,22 @@
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+channel_priority: strict
+
+dependencies:
+  - python=3.9
+  - numpy
+  - tqdm
+  - matplotlib
+  - scikit-learn
+  - pip
+
+  # PyTorch (이미 base에 있지만 버전 고정 원하면 유지)
+  - pytorch
+  - torchvision
+  - torchaudio
+  - cudatoolkit=11.8
+
+  - pip:
+      - wandb
