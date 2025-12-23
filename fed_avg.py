@@ -95,6 +95,7 @@ class FedAvg:
             for idx, (data, target) in enumerate(train_loader):
                 data, target = data.to(self.device), target.to(self.device)
                 optimizer.zero_grad()
+                # optimizer 초기화 (gradient 0으로 초기화)
 
                 logits = model(data)
                 loss = F.nll_loss(logits, target)
@@ -106,7 +107,7 @@ class FedAvg:
                 epoch_samples += data.size(0)
 
             # Calculate average accuracy and loss
-            epoch_loss /= idx
+            epoch_loss /= idx # 마지막 index를 클라이언트 수로 보고 평균을 취함.
             epoch_acc = epoch_correct / epoch_samples
 
             print(
@@ -136,8 +137,13 @@ class FedAvg:
             for client_idx in idx_clients:
                 # Set client in the sampler
                 self.train_loader.sampler.set_client(client_idx)
+                # train_loader는 client 수 만큼 할당.?
+                # train_loader는 는 하나인데, 내부 sampler가 client에 맞게 샘플링을 조절하는 듯.
+                # train_loader가 각 client마다 데이터를 partioning 하는 역할을 하는 건가?
+                # 각 클라이언트들 마다 곂치지 않고 고유한 데이터를 갖도록 강제가 되나? 서로 데이터가 곂치는 일이 생기지는 않나?
 
                 # Train client
+                # 클라이언트 하나를 학습하는 과정을 표현한 코드
                 client_model, client_loss = self._train_client(
                     root_model=self.root_model,
                     train_loader=self.train_loader,
@@ -148,12 +154,17 @@ class FedAvg:
 
             # Update server model based on clients models
             updated_weights = average_weights(clients_models)
+            # root_model의 weights는 clients_models의 평균으로 업데이트됨.
+            # 내부적으로 soft update가 아닌 완전 교체임.
+            
             self.root_model.load_state_dict(updated_weights)
+            # load_state_dict함수를 활용해 root_model의 weights를 updated_weights로 교체
 
             # Update average loss of this round
             avg_loss = sum(clients_losses) / len(clients_losses)
             train_losses.append(avg_loss)
 
+            # 이 아래는 로깅 및 테스트 코드
             if (epoch + 1) % self.args.log_every == 0:
                 # Test server model
                 total_loss, total_acc = self.test()
@@ -186,7 +197,9 @@ class FedAvg:
                 if self.args.early_stopping and self.reached_target_at is not None:
                     print(f"\nEarly stopping at round #{epoch}...")
                     break
-
+    
+    # root_model을 테스트하는 함수 
+    # 테스트 기능으 root_model에만 적용하고, client_model에는 적용하지 않는 듯
     def test(self) -> Tuple[float, float]:
         """Test the server model.
 
