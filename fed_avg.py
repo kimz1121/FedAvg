@@ -82,7 +82,8 @@ class FedAvg:
             Tuple[nn.Module, float]: client model, average client loss.
         """
         model = copy.deepcopy(root_model)
-        model.train()
+        model.train()# 클라이언트 모델을 학습 모드로 설정, root_model은 이미 train 모드로 설정된 상태이므로 불필요 할 수 있어보이나, 안전하게 Train 모드로 설정하는 듯.
+        # 아니면 nn.module의 초기화 과정중에서 다시 eval 모드로 바뀌는 경우가 있나?
         optimizer = torch.optim.SGD(
             model.parameters(), lr=self.args.lr, momentum=self.args.momentum
         )
@@ -128,10 +129,15 @@ class FedAvg:
             # Randomly select clients
             m = max(int(self.args.frac * self.args.n_clients), 1)
             # frac? 전체 클라이언트 중이 일부를 샘플링?
+            # frac은 (0, 1] 사이의 실수 값으로 설정.
             # max를 사용하는 이유는 frac이 너무 작을 때 최소 1명은 선택되도록 하기 위함인 듯.
+
             idx_clients = np.random.choice(range(self.args.n_clients), m, replace=False)
+            # self.args.n_clients 전체 클라이언트 중 m개를 choice 샘플링
+            
 
             # Train clients
+            # Train mode를 활성화 해주었기 때문에 _train_client()함수 내부의 deepcopy된 모델도 train mode로 동작함.
             self.root_model.train()
 
             for client_idx in idx_clients:
@@ -162,7 +168,7 @@ class FedAvg:
 
             # Update average loss of this round
             avg_loss = sum(clients_losses) / len(clients_losses)
-            train_losses.append(avg_loss)
+            train_losses.append(avg_loss)# avg_loss는 logging 용도로만 활용되는 것으로 보임.
 
             # 이 아래는 로깅 및 테스트 코드
             if (epoch + 1) % self.args.log_every == 0:
