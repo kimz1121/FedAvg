@@ -126,6 +126,8 @@ class FedAvg:
 
             # Randomly select clients
             m = max(int(self.args.frac * self.args.n_clients), 1)
+            # frac? 전체 클라이언트 중이 일부를 샘플링?
+            # max를 사용하는 이유는 frac이 너무 작을 때 최소 1명은 선택되도록 하기 위함인 듯.
             idx_clients = np.random.choice(range(self.args.n_clients), m, replace=False)
 
             # Train clients
