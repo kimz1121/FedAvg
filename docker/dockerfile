@@ -29,7 +29,7 @@ WORKDIR /workspace
 # Copy environment.yaml
 # (source code is volume-mounted)
 # ==================================================
-COPY environment.yaml /tmp/environment.yaml
+COPY docker/environment.yaml /tmp/environment.yaml
 
 # ==================================================
 # Update base conda environment (NO new env)

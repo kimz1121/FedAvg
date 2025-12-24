@@ -12,11 +12,5 @@ dependencies:
   - scikit-learn
   - pip
 
-  # PyTorch (이미 base에 있지만 버전 고정 원하면 유지)
-  - pytorch
-  - torchvision
-  - torchaudio
-  - cudatoolkit=11.8
-
   - pip:
       - wandb

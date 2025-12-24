@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  fedavg:
+    build:
+      context: .
+      dockerfile: docker/dockerfile
+    container_name: fedavg
+    
+    # GPU 설정
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    
+    # 볼륨 마운트
+    volumes:
+      - ./:/workspace
+    
+    # 환경변수 (.env 파일에서 로드)
+    env_file:
+      - .env
+    
+    # 대화형 모드
+    stdin_open: true
+    tty: true
+    
+    # 작업 디렉토리
+    working_dir: /workspace
