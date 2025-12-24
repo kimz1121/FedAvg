@@ -1,5 +1,7 @@
 .vscode/
 .idea/
+datasets/
 **/__pycache__
 wandb/
 *.pyc
+.env

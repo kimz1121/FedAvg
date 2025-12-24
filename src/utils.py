@@ -9,6 +9,7 @@ import wandb
 class Logger:
     def __init__(self, args):
         self.args = args
+        self.wandb = None
         if args.wandb:
             wandb.init(project=args.wandb_project, name=args.exp_name, config=args)
             self.wandb = wandb
@@ -20,12 +21,18 @@ class Logger:
 
 def average_weights(weights: List[Dict[str, torch.Tensor]]) -> Dict[str, torch.Tensor]:
     weights_avg = copy.deepcopy(weights[0])
+    # weights_avg를 저장할 위치를 사전할당하는 목적인 듯
+    # 이 구현은 copy.deepcopy 말고, weights_avg = {key: torch.zeros_like(value) for key, value in weights[0].items()} 로도 가능할 듯.
 
+    # 왜 dict 형태로 관리되지?
+    # key는 각 레이어의 이름, value는 해당 레이어의 파라미터(weight, bias) 텐서인 듯.
     for key in weights_avg.keys():
-        for i in range(1, len(weights)):
-            weights_avg[key] += weights[i][key]
-        weights_avg[key] = torch.div(weights_avg[key], len(weights))
+        for i in range(1, len(weights)):# len(weights)는 클라이언트 수와 동일
+            weights_avg[key] += weights[i][key] # 같은 레이어(같은 key 값)끼리 모두 더함
+        weights_avg[key] = torch.div(weights_avg[key], len(weights))  # 더한 값을 클라이언트 수로 나누어 평균을 구함
+        # 이를 전체 레이어(key 값)에 대해 반복
 
+        # 모델 전체의 파라미터의 평균을 구하게 됨.
     return weights_avg
 
 

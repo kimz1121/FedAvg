@@ -1,0 +1,16 @@
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+channel_priority: strict
+
+dependencies:
+  - python=3.9
+  - numpy
+  - tqdm
+  - matplotlib
+  - scikit-learn
+  - pip
+
+  - pip:
+      - wandb
