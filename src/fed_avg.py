@@ -108,11 +108,11 @@ class FedAvg:
                 epoch_samples += data.size(0)
 
             # Calculate average accuracy and loss
-            epoch_loss /= idx # 마지막 index를 클라이언트 수로 보고 평균을 취함.
+            epoch_loss /= idx+1 # 마지막 index를 클라이언트 수로 보고 평균을 취함.
             epoch_acc = epoch_correct / epoch_samples
 
             print(
-                f"Client #{client_idx} | Epoch: {epoch}/{self.args.n_client_epochs} | Loss: {epoch_loss} | Acc: {epoch_acc}",
+                f"Client #{client_idx} | Epoch: {epoch}/{self.args.n_client_epochs} | Loss: {epoch_loss} | Acc: {epoch_acc}".ljust(100),
                 end="\r",
             )
 
@@ -229,8 +229,10 @@ class FedAvg:
             total_samples += data.size(0)
 
         # calculate average accuracy and loss
-        total_loss /= idx
+        total_loss /= idx+1
         total_acc = total_correct / total_samples
+        print()# 줄바꿈 이전 출력 버퍼를 비우기 위한 용도
+        print(f"Total Correct: {total_correct}, Total Samples: {total_samples}\n")
 
         return total_loss, total_acc
 
